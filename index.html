@@ -1,299 +1,530 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FocusFlow - Pomodoro & Task Manager</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com "></script>
-  <style>
-    body {
-      background-image: url('original-79e2b38783f69d403129674f6f5d73c3.gif');
-      background-size: cover;
-      background-position: center;
-      transition: background-image 0.5s ease-in-out;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aesthetic Pomodoro Timer</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #ffffff;
+            --secondary-color: #f0f0f0;
+            --accent-color: #3e4889;
+            --text-color: #333;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --completed-color: #a9a9a9;
+            --light-accent-color: #fdecec;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--secondary-color);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            transition: background-image 0.5s ease-in-out;
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--primary-color);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .timer-modes button {
+            background: none;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            margin: 0 0.5rem;
+            color: var(--text-color);
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .timer-modes button.active {
+            opacity: 1;
+            font-weight: 600;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .timer {
+            font-size: 5rem;
+            font-weight: 700;
+            margin: 2rem 0;
+        }
+
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .timer-controls button {
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #start-stop-btn {
+            background-color: var(--accent-color);
+        }
+        #start-stop-btn:hover {
+            background-color: #867575;
+        }
+        #reset-btn {
+            background-color: #ccc;
+        }
+        #reset-btn:hover {
+            background-color: #bbb;
+        }
+
+        .goals {
+            margin-top: 2rem;
+        }
+        
+        .goals h2 {
+            margin-bottom: 1rem;
+        }
+
+        #goal-input {
+            width: calc(70% - 10px);
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        #add-goal-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+        
+        #goal-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 1rem;
+            text-align: left;
+        }
+
+        #goal-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            border-bottom: 1px solid #ddd;
+            word-break: break-all;
+        }
+
+        #goal-list li.completed span {
+            text-decoration: line-through;
+            color: var(--completed-color);
+        }
+        
+        #goal-list li .goal-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #goal-list li input[type="checkbox"] {
+            cursor: pointer;
+        }
+
+        #goal-list li .delete-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #ff6b6b;
+            font-size: 1rem;
+            padding: 5px;
+        }
+
+        .settings, .background-upload {
+            margin-top: 2rem;
+        }
+
+        #settings-toggle-btn {
+            background: none;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        #settings-toggle-btn:hover {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .settings-form {
+            background-color: var(--light-accent-color);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            display: none; /* Initially hidden */
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 1rem;
+            align-items: center;
+            animation: fadeIn 0.5s;
+        }
+
+        .settings-form.visible {
+            display: flex; /* Show when class is added */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .settings-form div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .settings-form label {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .settings-form input {
+            width: 60px;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        #save-settings-btn {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            border: none;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        
+        .upload-label {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+        
+        @media (max-width: 480px) {
+            .timer {
+                font-size: 4rem;
+            }
+            .timer-controls button {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-cover bg-center flex items-center justify-center p-4 text-white">
+<body>
 
-  <div class="bg-black bg-opacity-70 backdrop-blur-md rounded-xl shadow-2xl p-4 sm:p-6 w-full max-w-3xl space-y-6">
-    <h1 class="text-3xl sm:text-4xl font-extrabold text-center mb-4 tracking-wide">FocusFlow</h1>
+    <div class="container">
+        <h1>Pomodoro Timer</h1>
 
-    <!-- Pomodoro Timer -->
-    <section id="pomodoro-section" class="bg-gray-900 p-4 sm:p-5 rounded-lg shadow-lg">
-      <h2 class="text-xl sm:text-2xl font-semibold mb-3">Pomodoro Timer</h2>
-      <div class="flex items-center gap-2 mb-3">
-        <input id="work-minutes" type="number" min="1" value="25" class="w-16 sm:w-20 px-2 py-1 rounded bg-gray-800 text-white focus:outline-none" />
-        <span>Minutes</span>
-      </div>
-      <div id="work-timer" class="text-4xl sm:text-5xl font-mono text-center my-4">25:00</div>
-      <div class="flex flex-wrap justify-center gap-2">
-        <button onclick="startWork()" class="px-3 py-1 sm:px-4 sm:py-2 bg-green-500 hover:bg-green-600 text-white rounded transition">Start</button>
-        <button onclick="pauseWork()" class="px-3 py-1 sm:px-4 sm:py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded transition">Pause</button>
-        <button onclick="resetWork()" class="px-3 py-1 sm:px-4 sm:py-2 bg-red-500 hover:bg-red-600 text-white rounded transition">Reset</button>
-      </div>
-    </section>
+        <div class="timer-modes">
+            <button id="pomodoro-btn" class="active">Pomodoro</button>
+            <button id="short-break-btn">Short Break</button>
+            <button id="long-break-btn">Long Break</button>
+        </div>
 
-    <!-- Break Timer -->
-    <section id="break-section" class="bg-gray-900 p-4 sm:p-5 rounded-lg shadow-lg">
-      <h2 class="text-xl sm:text-2xl font-semibold mb-3">Break Timer</h2>
-      <div class="flex items-center gap-2 mb-3">
-        <input id="break-minutes" type="number" min="1" value="5" class="w-16 sm:w-20 px-2 py-1 rounded bg-gray-800 text-white focus:outline-none" />
-        <span>Minutes</span>
-      </div>
-      <div id="break-timer" class="text-4xl sm:text-5xl font-mono text-center my-4">05:00</div>
-      <div class="flex flex-wrap justify-center gap-2">
-        <button onclick="startBreak()" class="px-3 py-1 sm:px-4 sm:py-2 bg-green-500 hover:bg-green-600 text-white rounded transition">Start</button>
-        <button onclick="pauseBreak()" class="px-3 py-1 sm:px-4 sm:py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded transition">Pause</button>
-        <button onclick="resetBreak()" class="px-3 py-1 sm:px-4 sm:py-2 bg-red-500 hover:bg-red-600 text-white rounded transition">Reset</button>
-      </div>
-    </section>
+        <div class="timer" id="timer-display">25:00</div>
 
-    <!-- Lofi Music Player -->
-    <section id="lofi-section" class="bg-gray-900 p-4 sm:p-5 rounded-lg shadow-lg">
-      <h2 class="text-xl sm:text-2xl font-semibold mb-3">Lofi Playlist</h2>
-      <div id="now-playing" class="text-center text-sm text-gray-400 mb-3 italic">
-        No song selected
-      </div>
-      <ul id="lofi-playlist" class="space-y-2 max-h-60 overflow-y-auto pr-1"></ul>
-      <audio id="lofi-player" class="mt-4 w-full hidden"></audio>
-    </section>
+        <div class="timer-controls">
+            <button id="start-stop-btn">Start</button>
+            <button id="reset-btn">Reset</button>
+        </div>
+        
+        <div class="settings">
+            <button id="settings-toggle-btn">Settings</button>
+            <div id="settings-form" class="settings-form">
+                <div>
+                    <label for="pomodoro-duration">Pomodoro (min)</label>
+                    <input type="number" id="pomodoro-duration" value="25" min="1">
+                </div>
+                <div>
+                    <label for="short-break-duration">Short Break (min)</label>
+                    <input type="number" id="short-break-duration" value="5" min="1">
+                </div>
+                <div>
+                    <label for="long-break-duration">Long Break (min)</label>
+                    <input type="number" id="long-break-duration" value="15" min="1">
+                </div>
+                 <button id="save-settings-btn">Save & Apply</button>
+            </div>
+        </div>
 
-    <!-- Background Upload -->
-    <section class="bg-gray-900 p-4 sm:p-5 rounded-lg shadow-lg">
-      <h2 class="text-xl sm:text-2xl font-semibold mb-3">Change Background</h2>
-      <input id="bg-upload" type="file" accept="image/*" class="text-sm text-white file:mr-4 file:py-1 file:px-3 file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:hover:bg-blue-700 file:text-white rounded-md cursor-pointer" />
-    </section>
+        <div class="goals">
+            <h2>My Goals</h2>
+            <input type="text" id="goal-input" placeholder="Add a new goal">
+            <button id="add-goal-btn">Add</button>
+            <ul id="goal-list"></ul>
+        </div>
 
-    <!-- To-Do List -->
-    <section class="bg-gray-900 p-4 sm:p-5 rounded-lg shadow-lg">
-      <h2 class="text-xl sm:text-2xl font-semibold mb-3">To-Do List</h2>
-      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 mb-4">
-        <input id="new-task" type="text" placeholder="Add a new task..." class="flex-grow px-4 py-2 rounded bg-gray-800 text-white focus:outline-none w-full sm:w-auto" />
-        <button onclick="addTask()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded transition w-full sm:w-auto">Add</button>
-      </div>
-      <ul id="task-list" class="space-y-2 max-h-60 overflow-y-auto pr-1"></ul>
-    </section>
+        <div class="background-upload">
+            <label for="background-input" class="upload-label">Change Background</label>
+            <input type="file" id="background-input" accept="image/*">
+        </div>
+    </div>
 
-    <footer class="text-center text-xs sm:text-sm text-gray-400 mt-6">
-      FocusFlow © <span id="year"></span> | Stay Focused. Stay Productive.
-    </footer>
-  </div>
+    <script>
+        // DOM Elements
+        const timerDisplay = document.getElementById('timer-display');
+        const startStopBtn = document.getElementById('start-stop-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const pomodoroBtn = document.getElementById('pomodoro-btn');
+        const shortBreakBtn = document.getElementById('short-break-btn');
+        const longBreakBtn = document.getElementById('long-break-btn');
+        const goalInput = document.getElementById('goal-input');
+        const addGoalBtn = document.getElementById('add-goal-btn');
+        const goalList = document.getElementById('goal-list');
+        const backgroundInput = document.getElementById('background-input');
+        const settingsToggleBtn = document.getElementById('settings-toggle-btn');
+        const settingsForm = document.getElementById('settings-form');
+        const pomodoroDurationInput = document.getElementById('pomodoro-duration');
+        const shortBreakDurationInput = document.getElementById('short-break-duration');
+        const longBreakDurationInput = document.getElementById('long-break-duration');
+        const saveSettingsBtn = document.getElementById('save-settings-btn');
+        
+        // Timer state
+        let minutes;
+        let seconds = 0;
+        let timerInterval;
+        let isRunning = false;
+        let currentMode = 'pomodoro';
+        
+        // Timer durations
+        let pomodoroDuration = 25;
+        let shortBreakDuration = 5;
+        let longBreakDuration = 15;
 
-<script>
-  // ========== TIMER LOGIC ==========
-  let workTimerInterval = null;
-  let breakTimerInterval = null;
+        // Load data from local storage on startup
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSettings();
+            loadGoals();
+            loadBackground();
+            const savedMode = localStorage.getItem('pomodoroMode') || 'pomodoro';
+            switchMode(savedMode);
+        });
 
-  // Load saved values or defaults
-  let timeLeft = localStorage.getItem("workTime") 
-    ? parseInt(localStorage.getItem("workTime")) 
-    : 25 * 60;
-  let breakLeft = localStorage.getItem("breakTime") 
-    ? parseInt(localStorage.getItem("breakTime")) 
-    : 5 * 60;
-
-  function formatTime(seconds) {
-    const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
-    const secs = (seconds % 60).toString().padStart(2, '0');
-    return `${mins}:${secs}`;
-  }
-
-  function updateWorkDisplay() {
-    document.getElementById("work-timer").textContent = formatTime(timeLeft);
-    localStorage.setItem("workTime", timeLeft);
-  }
-
-  function updateBreakDisplay() {
-    document.getElementById("break-timer").textContent = formatTime(breakLeft);
-    localStorage.setItem("breakTime", breakLeft);
-  }
-
-  function startWork() {
-    if (!workTimerInterval) {
-      workTimerInterval = setInterval(() => {
-        if (timeLeft > 0) {
-          timeLeft--;
-          updateWorkDisplay();
-        } else {
-          clearInterval(workTimerInterval);
-          workTimerInterval = null;
-          alert("Pomodoro session complete! Time for a break.");
+        // Timer Functions
+        function startTimer() {
+            if (isRunning) return;
+            isRunning = true;
+            startStopBtn.textContent = 'Pause';
+            timerInterval = setInterval(updateTimer, 1000);
         }
-      }, 1000);
-    }
-  }
 
-  function pauseWork() {
-    clearInterval(workTimerInterval);
-    workTimerInterval = null;
-  }
-
-  function resetWork() {
-    pauseWork();
-    timeLeft = parseInt(document.getElementById("work-minutes").value) * 60;
-    updateWorkDisplay();
-  }
-
-  function startBreak() {
-    if (!breakTimerInterval) {
-      breakTimerInterval = setInterval(() => {
-        if (breakLeft > 0) {
-          breakLeft--;
-          updateBreakDisplay();
-        } else {
-          clearInterval(breakTimerInterval);
-          breakTimerInterval = null;
-          alert("Break is over! Back to focus!");
+        function stopTimer() {
+            isRunning = false;
+            startStopBtn.textContent = 'Start';
+            clearInterval(timerInterval);
         }
-      }, 1000);
-    }
-  }
 
-  function pauseBreak() {
-    clearInterval(breakTimerInterval);
-    breakTimerInterval = null;
-  }
+        function resetTimer() {
+            stopTimer();
+            switch (currentMode) {
+                case 'pomodoro': minutes = pomodoroDuration; break;
+                case 'shortBreak': minutes = shortBreakDuration; break;
+                case 'longBreak': minutes = longBreakDuration; break;
+            }
+            seconds = 0;
+            updateDisplay();
+            document.title = "Aesthetic Pomodoro Timer";
+        }
 
-  function resetBreak() {
-    pauseBreak();
-    breakLeft = parseInt(document.getElementById("break-minutes").value) * 60;
-    updateBreakDisplay();
-  }
+        function updateTimer() {
+            if (seconds === 0) {
+                if (minutes === 0) {
+                    stopTimer();
+                    alert('Time is up!');
+                    document.title = "Time's Up!";
+                    return;
+                }
+                minutes--;
+                seconds = 59;
+            } else {
+                seconds--;
+            }
+            updateDisplay();
+        }
 
-  // ========== BACKGROUND UPLOAD ==========
-  document.getElementById("bg-upload").addEventListener("change", function(e) {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onload = function(event) {
-      document.body.style.backgroundImage = `url('${event.target.result}')`;
-      localStorage.setItem("backgroundImage", event.target.result);
-    };
-    reader.readAsDataURL(file);
-  });
+        function updateDisplay() {
+            const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            timerDisplay.textContent = timeString;
+            document.title = `${timeString} - ${currentMode.charAt(0).toUpperCase() + currentMode.slice(1).replace('B', ' B')}`;
+        }
 
-  // Load saved background
-  const savedBg = localStorage.getItem("backgroundImage");
-  if (savedBg) {
-    document.body.style.backgroundImage = `url('${savedBg}')`;
-  }
+        function switchMode(mode) {
+            currentMode = mode;
+            localStorage.setItem('pomodoroMode', mode);
+            document.querySelectorAll('.timer-modes button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`${mode.replace('B','-b')}-btn`).classList.add('active');
+            resetTimer();
+        }
 
-  // ========== TASK LIST LOGIC ==========
-  function saveTasks() {
-    const tasks = [];
-    document.querySelectorAll("#task-list li").forEach(li => {
-      const text = li.querySelector("span").textContent;
-      const completed = li.querySelector("input").checked;
-      tasks.push({ text, completed });
-    });
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-  }
+        // Settings Functions
+        function toggleSettings() {
+            settingsForm.classList.toggle('visible');
+        }
+        
+        function saveSettings() {
+            pomodoroDuration = parseInt(pomodoroDurationInput.value) || 25;
+            shortBreakDuration = parseInt(shortBreakDurationInput.value) || 5;
+            longBreakDuration = parseInt(longBreakDurationInput.value) || 15;
 
-  function addTask(text = null, completed = false) {
-    const input = document.getElementById("new-task");
-    const taskText = text || input.value.trim();
-    if (!taskText) return;
+            localStorage.setItem('pomodoroSettings', JSON.stringify({
+                pomodoro: pomodoroDuration,
+                shortBreak: shortBreakDuration,
+                longBreak: longBreakDuration
+            }));
+            
+            alert('Settings saved!');
+            switchMode(currentMode); // Reset timer with new values
+        }
 
-    const list = document.getElementById("task-list");
+        function loadSettings() {
+            const savedSettings = JSON.parse(localStorage.getItem('pomodoroSettings'));
+            if (savedSettings) {
+                pomodoroDuration = savedSettings.pomodoro;
+                shortBreakDuration = savedSettings.shortBreak;
+                longBreakDuration = savedSettings.longBreak;
+                
+                pomodoroDurationInput.value = pomodoroDuration;
+                shortBreakDurationInput.value = shortBreakDuration;
+                longBreakDurationInput.value = longBreakDuration;
+            }
+        }
 
-    const li = document.createElement("li");
-    li.className = "flex items-center justify-between p-2 sm:p-3 rounded-md bg-gray-800";
+        // Event Listeners for Timer and Settings
+        startStopBtn.addEventListener('click', () => isRunning ? stopTimer() : startTimer());
+        resetBtn.addEventListener('click', resetTimer);
+        settingsToggleBtn.addEventListener('click', toggleSettings);
+        saveSettingsBtn.addEventListener('click', saveSettings);
+        pomodoroBtn.addEventListener('click', () => switchMode('pomodoro'));
+        shortBreakBtn.addEventListener('click', () => switchMode('shortBreak'));
+        longBreakBtn.addEventListener('click', () => switchMode('longBreak'));
 
-    const label = document.createElement("label");
-    label.className = "flex items-center gap-2 cursor-pointer";
+        // Goal Functions
+        function getGoals() {
+            return JSON.parse(localStorage.getItem('pomodoroGoals')) || [];
+        }
 
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.className = "form-checkbox h-4 w-4 sm:h-5 sm:w-5 text-blue-500";
-    checkbox.checked = completed;
+        function saveGoals(goals) {
+            localStorage.setItem('pomodoroGoals', JSON.stringify(goals));
+        }
 
-    const span = document.createElement("span");
-    span.textContent = taskText;
+        function addGoal() {
+            const goalText = goalInput.value.trim();
+            if (goalText) {
+                const goals = getGoals();
+                goals.push({ text: goalText, completed: false });
+                saveGoals(goals);
+                renderGoals();
+                goalInput.value = '';
+            }
+        }
+        
+        window.toggleGoal = function(index) {
+            const goals = getGoals();
+            goals[index].completed = !goals[index].completed;
+            saveGoals(goals);
+            renderGoals();
+        }
 
-    checkbox.addEventListener("change", () => {
-      if (checkbox.checked) {
-        li.classList.add("line-through", "bg-green-800", "bg-opacity-30");
-      } else {
-        li.classList.remove("line-through", "bg-green-800", "bg-opacity-30");
-      }
-      saveTasks();
-    });
+        window.removeGoal = function(index) {
+            const goals = getGoals();
+            goals.splice(index, 1);
+            saveGoals(goals);
+            renderGoals();
+        }
 
-    if (completed) {
-      li.classList.add("line-through", "bg-green-800", "bg-opacity-30");
-    }
+        function renderGoals() {
+            goalList.innerHTML = '';
+            const goals = getGoals();
+            goals.forEach((goal, index) => {
+                const li = document.createElement('li');
+                li.className = goal.completed ? 'completed' : '';
+                li.innerHTML = `
+                    <div class="goal-content">
+                        <input type="checkbox" onclick="toggleGoal(${index})" ${goal.completed ? 'checked' : ''}>
+                        <span>${goal.text}</span>
+                    </div>
+                    <button class="delete-btn" onclick="removeGoal(${index})">X</button>
+                `;
+                goalList.appendChild(li);
+            });
+        }
 
-    label.appendChild(checkbox);
-    label.appendChild(span);
+        function loadGoals() {
+            renderGoals();
+        }
 
-    const btn = document.createElement("button");
-    btn.innerHTML = "❌";
-    btn.className = "text-red-400 hover:text-red-300 transition";
-    btn.onclick = () => {
-      list.removeChild(li);
-      saveTasks();
-    };
+        addGoalBtn.addEventListener('click', addGoal);
+        goalInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addGoal();
+        });
 
-    li.appendChild(label);
-    li.appendChild(btn);
+        // Background Image Functions
+        function handleBackgroundUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const imageUrl = e.target.result;
+                    document.body.style.backgroundImage = `url(${imageUrl})`;
+                    localStorage.setItem('pomodoroBackground', imageUrl);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
 
-    list.appendChild(li);
-    input.value = "";
-    saveTasks();
-  }
+        function loadBackground() {
+            const savedBackground = localStorage.getItem('pomodoroBackground');
+            if (savedBackground) {
+                document.body.style.backgroundImage = `url(${savedBackground})`;
+            }
+        }
 
-  document.getElementById("new-task").addEventListener("keydown", function(e) {
-    if (e.key === "Enter") {
-      addTask();
-    }
-  });
-
-  // Load saved tasks
-  const savedTasks = JSON.parse(localStorage.getItem("tasks") || "[]");
-  savedTasks.forEach(task => addTask(task.text, task.completed));
-
-  // ========== LOFI MUSIC LOGIC ==========
-  const lofiPlayer = document.getElementById("lofi-player");
-  const playlistContainer = document.getElementById("lofi-playlist");
-  const nowPlaying = document.getElementById("now-playing");
-
-  async function loadLofiTracks() {
-    try {
-      const response = await fetch("https://api.lofipay.com/v1/lofi ");
-      const data = await response.json();
-      const tracks = data.data;
-
-      playlistContainer.innerHTML = "";
-
-      tracks.forEach((track, index) => {
-        const li = document.createElement("li");
-        const button = document.createElement("button");
-        button.textContent = `${index + 1}. ${track.title} - ${track.artist}`;
-        button.className = "w-full text-left px-3 py-2 rounded-md bg-gray-800 hover:bg-gray-700 transition";
-        button.onclick = () => playLofiTrack(track.url, track.title, track.artist);
-        li.appendChild(button);
-        playlistContainer.appendChild(li);
-      });
-    } catch (err) {
-      console.error("Failed to load lofi tracks:", err);
-      playlistContainer.innerHTML = "<p class='text-center text-red-400'>Error loading tracks</p>";
-    }
-  }
-
-  function playLofiTrack(url, title, artist) {
-    lofiPlayer.src = url;
-    lofiPlayer.play();
-    lofiPlayer.classList.remove("hidden");
-    nowPlaying.textContent = `Now Playing: "${title}" by ${artist}`;
-  }
-
-  // ========== INIT ==========
-  updateWorkDisplay();
-  updateBreakDisplay();
-  loadLofiTracks();
-  document.getElementById("year").textContent = new Date().getFullYear();
-</script>
-
+        backgroundInput.addEventListener('change', handleBackgroundUpload);
+    </script>
 </body>
 </html>
